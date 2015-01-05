@@ -14,7 +14,7 @@ function initParquQuestion(element, url) {
         });
         var submit = $("<input></input>", {
                 type: "submit",
-                value: "Submit",
+                value: "Check answer",
                 id: "checkAnswer"
         });
         $(element).find("[data-parqu-options]").append(submit);

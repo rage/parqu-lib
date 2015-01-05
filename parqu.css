@@ -1,0 +1,11 @@
+.wrong:after {
+	content:"WRONG!";
+	color: red;
+	margin-left:5em;
+}
+
+.correct:after {
+	content:"RIGHT!";
+	color: green;
+	margin-left:5em;
+}
