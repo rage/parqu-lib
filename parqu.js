@@ -1,12 +1,12 @@
-function initParquQuestion(element, url) {
-    $.get(url, function(data) {
+function initParquQuestion(element, id) {
+    $.get("http://parqutoo.herokuapp.com/questions/" + id, function(data) {
         $(element).find("[data-parqu-code]").append(data.code);
         $(element).find("[data-parqu-question-text]").append(data.questionText);
 
         $.each(data.answers, function(index, answer) {
             var radio = $("<input></input>", {
                 type: "radio",
-                name: "answer",
+                name: "answer" + id,
                 value: answer
             });
 
@@ -15,23 +15,23 @@ function initParquQuestion(element, url) {
         var submit = $("<input></input>", {
                 type: "submit",
                 value: "Check answer",
-                id: "checkAnswer"
+                id: "checkAnswer" + id
         });
         $(element).find("[data-parqu-options]").append(submit);
 
-        $("#checkAnswer").click(function(){
-            checkAnswer(data.correctAnswer)});
+        $("#checkAnswer" + id).click(function(){
+            checkAnswer(data.correctAnswer, id)});
     });
 }
 
-function checkAnswer(rightAnswer){
-    var chosenValue = ($('input[name=answer]:checked').val());
+function checkAnswer(rightAnswer, id){
+    var chosenElement = $('input[name=answer' + id +']:checked');
+    var chosenValue = chosenElement.val();
     if(chosenValue){
-        console.log(chosenValue);
         if(chosenValue == rightAnswer){
-            $('input[name=answer]:checked').addClass("correct");
+            chosenElement.addClass("correct");
         } else {
-            $('input[name=answer]:checked').addClass("wrong");
+            chosenElement.addClass("wrong");
         }
     }
 }
