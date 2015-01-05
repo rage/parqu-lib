@@ -12,5 +12,26 @@ function initParquQuestion(element, url) {
 
             $(element).find("[data-parqu-options]").append(radio).append(" " + answer).append("<br>");
         });
+        var submit = $("<input></input>", {
+                type: "submit",
+                value: "Submit",
+                id: "checkAnswer"
+        });
+        $(element).find("[data-parqu-options]").append(submit);
+
+        $("#checkAnswer").click(function(){
+            checkAnswer(data.correctAnswer)});
     });
+}
+
+function checkAnswer(rightAnswer){
+    var chosenValue = ($('input[name=answer]:checked').val());
+    if(chosenValue){
+        console.log(chosenValue);
+        if(chosenValue == rightAnswer){
+            $('input[name=answer]:checked').addClass("correct");
+        } else {
+            $('input[name=answer]:checked').addClass("wrong");
+        }
+    }
 }
