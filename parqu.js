@@ -1,4 +1,4 @@
-function initParquQuestion(element, id) {
+function initParquQuestion(element, id, studentNumber) {
     $.get("http://parqutoo.herokuapp.com/questions/" + id, function(data) {
         $(element).find("[data-parqu-code]").append(data.code);
         $(element).find("[data-parqu-question-text]").append(data.questionText);
@@ -20,19 +20,18 @@ function initParquQuestion(element, id) {
         $(element).find("[data-parqu-options]").append(submit);
 
         $("#checkAnswer" + id).click(function(){
-            checkAnswer(data.correctAnswer, id, data.answerID)});
+            checkAnswer(data.correctAnswer, id, data.answerID, studentNumber)});
     });
 }
 
-function checkAnswer(rightAnswer, id, answerID){
+function checkAnswer(rightAnswer, id, answerID, studentNumber){
     var chosenElement = $('input[name=answer' + id +']:checked');
     var chosenValue = chosenElement.val();
 
-    console.log(JSON.stringify({'id': id, 'answerID': answerID, 'answer':chosenValue}));
     $.ajax({
           type: "POST",  
           url: "http://parqutoo.herokuapp.com/questions/",
-          data: JSON.stringify({'id': id, 'answerID': answerID, 'answer':chosenValue}),
+          data: JSON.stringify({'studentNumber':studentNumber, 'answerID': answerID, 'answer':chosenValue}),
           contentType: 'application/json',
           success: function( data ) {
             if(data){
