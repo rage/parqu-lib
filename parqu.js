@@ -20,18 +20,29 @@ function initParquQuestion(element, id) {
         $(element).find("[data-parqu-options]").append(submit);
 
         $("#checkAnswer" + id).click(function(){
-            checkAnswer(data.correctAnswer, id)});
+            checkAnswer(data.correctAnswer, id, data.answerID)});
     });
 }
 
-function checkAnswer(rightAnswer, id){
+function checkAnswer(rightAnswer, id, answerID){
     var chosenElement = $('input[name=answer' + id +']:checked');
     var chosenValue = chosenElement.val();
-    if(chosenValue){
-        if(chosenValue == rightAnswer){
-            chosenElement.addClass("correct");
-        } else {
-            chosenElement.addClass("wrong");
-        }
-    }
+
+    console.log(JSON.stringify({'id': id, 'answerID': answerID, 'answer':chosenValue}));
+    $.ajax({
+          type: "POST",  
+          url: "http://parqutoo.herokuapp.com/questions/",
+          data: JSON.stringify({'id': id, 'answerID': answerID, 'answer':chosenValue}),
+          contentType: 'application/json',
+          success: function( data ) {
+            if(data){
+                chosenElement.addClass("correct");
+            } else {
+                chosenElement.addClass("wrong");
+            }
+          },
+          error: function(jqXHR) {
+            console.log("ERROR! DATA NOT SENT");
+          }
+    });
 }
