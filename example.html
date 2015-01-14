@@ -2,22 +2,34 @@
     <head>
         <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="parqu.js"></script>
-        <script>
-            initParquQuestion("#question", "1", "013456789");
-            initParquQuestion("#question2", "2", "013456789");
-        </script>
         <link rel="stylesheet" type="text/css" href="parqu.css">
     </head>
     <body>
+        <div id="parqu-exercise1"></div>
+
         <div id="question">
             <h2 data-parqu-question-text></h2>
             <pre data-parqu-code></pre>
             <div data-parqu-options></div>
         </div>
-         <div id="question2">
+        <div id="question2">
+            <h2 data-parqu-question-text></h2>
+            <pre data-parqu-code></pre>
+            <div data-parqu-options></div>
+        </div> 
+        <div id="question3">
             <h2 data-parqu-question-text></h2>
             <pre data-parqu-code></pre>
             <div data-parqu-options></div>
         </div> 
     </body>
+
+
+            <script>
+            initParquQuestion("#question", "3", "013456789");
+            initParquQuestion("#question2", "2", "013456789");
+            initParquQuestion("#question3", "3", "013456789");
+
+            buildQuestionHTMLFramework("#parqu-exercise1", "3", "01234578", "Simppeli sijoitus");
+        </script>
 </html>
