@@ -109,7 +109,7 @@ function checkAnswer(rightAnswer, id, answerID, studentNumber){
     $.ajax({
           type: "POST",
           url: "http://parqu.herokuapp.com/questions/",
-          data: JSON.stringify({'studentNumber':studentNumber, 'answerID': answerID, 'answer':chosenValue, 'questionID':id}),
+          data: JSON.stringify({'studentID':studentNumber, 'answerID': answerID, 'answer':chosenValue, 'questionID':id}),
           contentType: 'application/json',
           success: function( data ) {
             if(data){
