@@ -30,7 +30,7 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
 
     var exerciseNameElement = $("<h4/>", {
         class: "tehtava",
-    }).text("Parametrisoitu tehtävä: " + exerciseName);
+    }).text("Koodinluku: " + exerciseName);
 
     var parquQuestionElement = $("<div></div>", {
         id: "parquQuestion" + id,

@@ -1,13 +1,13 @@
 .wrong:after {
 	content:"Väärin!";
 	color: red;
-	margin-left:5em;
+	margin-left:10em;
 }
 
 .correct:after {
 	content:"Oikein!";
 	color: green;
-	margin-left:5em;
+	margin-left:10em;
 }
 
 .parqu-question-div > div {
