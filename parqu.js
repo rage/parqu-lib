@@ -1,4 +1,8 @@
 function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
+    if($(element)[0] == undefined){
+        return;
+    }
+
     var idElement = "#parqu-panel" + id;
 
     var panelGroup = $("<div></div>", {
@@ -44,7 +48,6 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
     var parquQuestionOptions = $("<div data-parqu-options></div>");
     var parquQuestionReroll = $("<button parqu-reroll></button>");
 
-
     $(element).append(panelGroup);
     $(idElement).append(panelDefault);
     $(idElement + " .panel-default").append(collapseLink);
@@ -61,13 +64,11 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
     $("#parquQuestion" + id).append(parquQuestionOptions);
     $("#parquQuestion" + id).append(parquQuestionReroll);
 
-
     initParquQuestion("#parquQuestion" + id, id, studentNumber);    
 }
 
 function initParquQuestion(element, id, studentNumber) {
-    console.log("New question!");
-    $.get("http://parqutoo.herokuapp.com/questions/" + id, function(data) {
+    $.get("http://parqu.herokuapp.com/questions/" + id, function(data) {
         $(element).find("[data-parqu-code]").append(data.code);
         $(element).find("[data-parqu-question-text]").append(data.questionText);
 
@@ -107,7 +108,7 @@ function checkAnswer(rightAnswer, id, answerID, studentNumber){
 
     $.ajax({
           type: "POST",
-          url: "http://parqutoo.herokuapp.com/questions/",
+          url: "http://parqu.herokuapp.com/questions/",
           data: JSON.stringify({'studentNumber':studentNumber, 'answerID': answerID, 'answer':chosenValue, 'questionID':id}),
           contentType: 'application/json',
           success: function( data ) {
