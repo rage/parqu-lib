@@ -79,7 +79,9 @@ function initParquQuestion(element, id, studentNumber) {
                 value: answer
             });
 
-            $(element).find("[data-parqu-options]").append(radio).append(" " + answer).append("<br>");
+            var el = $("<label></label>").append(radio).append(" " + answer);
+
+            $(element).find("[data-parqu-options]").append(el).append("<br>");
         });
         var submit = $("<input></input>", {
                 type: "submit",
@@ -113,9 +115,9 @@ function checkAnswer(rightAnswer, id, answerID, studentNumber){
           contentType: 'application/json',
           success: function( data ) {
             if(data){
-                chosenElement.addClass("correct");
+                chosenElement.parent().addClass("correct");
             } else {
-                chosenElement.addClass("wrong");
+                chosenElement.parent().addClass("wrong");
             }
           },
           error: function(jqXHR) {
