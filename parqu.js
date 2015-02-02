@@ -71,7 +71,7 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
 }
 
 function initParquQuestion(element, id, studentNumber) {
-    $.get("http://parqu.herokuapp.com/questions/" + id, function(data) {
+    $.get("http://parqu.herokuapp.com/questions/" + id, {studentID: studentNumber}).done( function(data) {
         $(element).find("[data-parqu-code]").append(data.code);
         $(element).find("[data-parqu-question-text]").append(data.questionText);
 
