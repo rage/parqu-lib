@@ -64,11 +64,14 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
     $("#parquQuestion" + id).append(parquQuestionOptions);
     $("#parquQuestion" + id).append(parquQuestionReroll);
 
-    initParquQuestion("#parquQuestion" + id, id, studentNumber);    
+    $(element).find(idElement + " .panel-default" + " a").click(function(){
+        initParquQuestion("#parquQuestion" + id, id, studentNumber)
+        $(element).find(idElement + " .panel-default" + " a").unbind();
+    });
 }
 
 function initParquQuestion(element, id, studentNumber) {
-    $.get("http://parqu.herokuapp.com/questions/" + id, function(data) {
+    $.get("http://parqu.herokuapp.com/questions/" + id, {studentID: studentNumber}).done( function(data) {
         $(element).find("[data-parqu-code]").append(data.code);
         $(element).find("[data-parqu-question-text]").append(data.questionText);
 
