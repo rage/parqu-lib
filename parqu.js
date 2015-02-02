@@ -71,7 +71,7 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
 }
 
 function initParquQuestion(element, id, studentNumber) {
-    $.get("http://parqu.herokuapp.com/questions/" + id, {studentID: studentNumber}).done( function(data) {
+    $.get("http://parqutoo.herokuapp.com/questions/" + id, {studentID: studentNumber}).done( function(data) {
         $(element).find("[data-parqu-code]").append(data.code);
         $(element).find("[data-parqu-question-text]").append(data.questionText);
 
@@ -113,7 +113,7 @@ function checkAnswer(rightAnswer, id, answerID, studentNumber){
 
     $.ajax({
           type: "POST",
-          url: "http://parqu.herokuapp.com/questions/",
+          url: "http://parqutoo.herokuapp.com/questions/",
           data: JSON.stringify({'studentID':studentNumber, 'answerID': answerID, 'answer':chosenValue, 'questionID':id}),
           contentType: 'application/json',
           success: function( data ) {
