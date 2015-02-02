@@ -64,7 +64,10 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
     $("#parquQuestion" + id).append(parquQuestionOptions);
     $("#parquQuestion" + id).append(parquQuestionReroll);
 
-    initParquQuestion("#parquQuestion" + id, id, studentNumber);    
+    $(element).find(idElement + " .panel-default" + " a").click(function(){
+        initParquQuestion("#parquQuestion" + id, id, studentNumber)
+        $(element).find(idElement + " .panel-default" + " a").unbind();
+    }); 
 }
 
 function initParquQuestion(element, id, studentNumber) {
