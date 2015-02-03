@@ -65,14 +65,16 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
     $("#parquQuestion" + id).append(parquQuestionReroll);
 
     $(element).find(idElement + " .panel-default" + " a").click(function(){
-        initParquQuestion("#parquQuestion" + id, id, studentNumber)
         $(element).find(idElement + " .panel-default" + " a").unbind();
-    }); 
+        initParquQuestion("#parquQuestion" + id, id, studentNumber);
+    });
 }
 
 function initParquQuestion(element, id, studentNumber) {
+    $(element).find("[data-parqu-question-text]").append("Ladataan tehtävää...");
     $.get("http://parqu.herokuapp.com/questions/" + id, {studentID: studentNumber}).done( function(data) {
         $(element).find("[data-parqu-code]").append(data.code);
+        $(element).find("[data-parqu-question-text]").empty();
         $(element).find("[data-parqu-question-text]").append(data.questionText);
 
         $.each(data.answers, function(index, answer) {
