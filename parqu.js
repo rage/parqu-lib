@@ -16,107 +16,115 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName, c
 
     var idElement = "#parqu-panel" + id;
 
-    var panelGroup = $("<div></div>", {
+    var panelGroup = $("<div/>", {
         class: "panel-group",
         id: "parqu-panel" + id
     });
 
-    var panelDefault = $("<div></div>", {
+    var panelDefault = $("<div/>", {
         class: "panel panel-default"
     });
 
-    var panelHeading = $("<div></div>", {
+    var panelHeading = $("<div/>", {
         class: "panel-heading"
     });
 
-    var panelBody = $("<div></div>", {
+    var panelBody = $("<div/>", {
         class: "panel-body"
     });
 
-    var panelCollapse = $("<div></div>", {
+    var panelCollapse = $("<div/>", {
         class: "panel-collapse collapse",
         id: "parqu-panel" + id + "-2"
     });
 
-    var collapseLink = $("<a></a>", {
-        class: "panel-title",
-        href: idElement + "-2"
-    }).attr("data-toggle", "collapse").attr("data-parent", idElement);
+    var collapseLink = $("<a/>", {
+        class: "collapsed",
+        href: idElement + "-2",
+        "data-toggle": "collapse",
+        "data-parent": idElement,
+        text: "Koodinluku: " + exerciseName
+    });
 
     var exerciseNameElement = $("<h4/>", {
-        class: "tehtava",
-    }).text("Koodinluku: " + exerciseName);
+        class: "tehtava panel-title",
+    });
 
-    var parquQuestionElement = $("<div></div>", {
+    var parquQuestionElement = $("<div/>", {
         id: "parquQuestion" + id,
         class: "parqu-question-div"
     });
 
-    var parquQuestionText = $("<h3 data-parqu-question-text></h3>");
-    var parquQuestionCode = $("<pre/>", {
-        "class": "sh_java",
-        "data-parqu-code": ""
+    var parquQuestionText = $("<h3/>", {
+        class: "parqu-question-text"
     });
-    var parquQuestionOptions = $("<div data-parqu-options></div>");
-    var parquQuestionReroll = $("<button parqu-reroll></button>");
+    var parquQuestionCode = $("<pre/>", {
+        class: "sh_java parqu-code"
+    });
+    var parquQuestionOptions = $("<div/>", {
+        class: "parqu-options"
+    });
+    var parquQuestionReroll = $("<button/>", {
+        class: "parqu-reroll"
+    });
 
     $(element).append(panelGroup);
     $(idElement).append(panelDefault);
-    $(idElement + " .panel-default").append(collapseLink);
-    $(idElement + " .panel-title").append(panelHeading);
-    $(idElement + " .panel-heading").append(exerciseNameElement);
+    panelDefault.append(panelHeading);
+    panelHeading.append(exerciseNameElement);
+    exerciseNameElement.append(collapseLink);
 
-    $(idElement + " .panel-default").append(panelCollapse);
-    $(idElement + " .panel-collapse").append(panelBody);
+    panelDefault.append(panelCollapse);
+    panelCollapse.append(panelBody);
 
-    $(idElement + " .panel-body").append(parquQuestionElement);
+    panelBody.append(parquQuestionElement);
 
-    $("#parquQuestion" + id).append(parquQuestionText);        
-    $("#parquQuestion" + id).append(parquQuestionCode);
-    $("#parquQuestion" + id).append(parquQuestionOptions);
-    $("#parquQuestion" + id).append(parquQuestionReroll);
+    parquQuestionElement.append(parquQuestionText)
+                        .append(parquQuestionCode)
+                        .append(parquQuestionOptions)
+                        .append(parquQuestionReroll);
 
-    $(element).find(idElement + " .panel-default" + " a").click(function(){
-        $(element).find(idElement + " .panel-default" + " a").unbind();
-        initParquQuestion("#parquQuestion" + id, id, studentNumber, callback);
+    collapseLink.click(function(){
+        collapseLink.unbind();
+        initParquQuestion(parquQuestionElement, id, studentNumber, callback);
     });
 }
 
 function initParquQuestion(element, id, studentNumber, callback) {
-    $(element).find("[data-parqu-question-text]").append("Ladataan tehtävää...");
+    $(".parqu-question-text", element).append("Ladataan tehtävää...");
     $.get("http://parqu.herokuapp.com/questions/" + id, {studentID: studentNumber}).done( function(data) {
-        $(element).find("[data-parqu-code]").append(data.code);
-        $(element).find("[data-parqu-question-text]").empty();
-        $(element).find("[data-parqu-question-text]").append(data.questionText);
+        $(".parqu-code", element).append(data.code);
+        $(".parqu-question-text", element).empty();
+        $(".parqu-question-text", element).append(data.questionText);
 
         $.each(data.answers, function(index, answer) {
-            var radio = $("<input></input>", {
+            var radio = $("<input/>", {
                 type: "radio",
                 name: "answer" + id,
                 value: answer
             });
 
-            var el = $("<label></label>").append(radio).append(" " + answer);
+            var el = $("<label/>").append(radio).append(" " + answer);
 
-            $(element).find("[data-parqu-options]").append(el).append("<br>");
+            $(".parqu-options", element).append(el).append("<br>");
         });
-        var submit = $("<input></input>", {
+        var submit = $("<input/>", {
                 type: "submit",
                 value: "Tarkista vastaus",
                 id: "checkAnswer" + id
         });
-        $(element).find("[data-parqu-options]").append(submit);
+        $(".parqu-options", element).append(submit);
 
         $("#checkAnswer" + id).click(function(){
             checkAnswer(data.correctAnswer, id, data.answerID, studentNumber)});
 
-        $(element).find("[parqu-reroll]").append("Uusi tehtävä");
-        $(element).find("[parqu-reroll]").click(function(){
-            $(element).find("[parqu-reroll]").empty();
-            $(element).find("[parqu-reroll]").unbind();
-            $(element).find("[data-parqu-options]").empty();
-            $(element).find("[data-parqu-code]").empty();
-            $(element).find("[data-parqu-question-text]").empty();
+        $(".parqu-reroll", element).append("Uusi tehtävä");
+        $(".parqu-reroll", element).click(function(){
+            $(".parqu-reroll", element).empty();
+            $(".parqu-reroll", element).unbind();
+            $(".parqu-options", element).empty();
+            $(".parqu-code", element).empty();
+            $(".parqu-question-text", element).empty();
             initParquQuestion(element, id, studentNumber, callback)});
         typeof callback === "function" && callback();
     });
