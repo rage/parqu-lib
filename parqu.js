@@ -92,7 +92,7 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName, c
 
 function initParquQuestion(element, id, studentNumber, callback) {
     $(".parqu-question-text", element).append("Ladataan tehtävää...");
-    $.get("http://parqu.herokuapp.com/questions/" + id, {studentID: studentNumber}).done( function(data) {
+    $.get("https://parqu.herokuapp.com/questions/" + id, {studentID: studentNumber}).done( function(data) {
         $(".parqu-code", element).append(data.code);
         $(".parqu-question-text", element).empty();
         $(".parqu-question-text", element).append(data.questionText);
