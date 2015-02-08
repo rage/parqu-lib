@@ -5,7 +5,10 @@
         <link rel="stylesheet" type="text/css" href="parqu.css">
     </head>
     <body>
+
         <div id="parqu-exercise1"></div>
+
+        <div class="parqu-exercise" data-id="2" data-name="Vaikeampi sijoitus"></div>
 
         <div id="question">
             <h2 data-parqu-question-text></h2>
@@ -31,5 +34,7 @@
             initParquQuestion("#question3", "3", "013456789");
 
             buildQuestionHTMLFramework("#parqu-exercise1", "3", "01234578", "Simppeli sijoitus");
+
+            initParqu($(".parqu-exercise"), "013456789");
         </script>
 </html>

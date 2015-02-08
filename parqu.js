@@ -1,3 +1,14 @@
+function initParqu(elements, studentNumber) {
+    if (elements === undefined || elements.length === 0) {
+        return;
+    }
+
+    for (var i = 0; i < elements.length; i++) {
+        var element = $(elements[i]);
+        buildQuestionHTMLFramework(element, element.data("id"), studentNumber, element.data("name"));
+    }
+}
+
 function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
     if($(element)[0] == undefined){
         return;
