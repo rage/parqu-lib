@@ -1,15 +1,15 @@
-function initParqu(elements, studentNumber) {
+function initParqu(elements, studentNumber, callback) {
     if (elements === undefined || elements.length === 0) {
         return;
     }
 
     for (var i = 0; i < elements.length; i++) {
         var element = $(elements[i]);
-        buildQuestionHTMLFramework(element, element.data("id"), studentNumber, element.data("name"));
+        buildQuestionHTMLFramework(element, element.data("id"), studentNumber, element.data("name"), callback);
     }
 }
 
-function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
+function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName, callback){
     if($(element)[0] == undefined){
         return;
     }
@@ -53,8 +53,9 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
     });
 
     var parquQuestionText = $("<h3 data-parqu-question-text></h3>");
-    var parquQuestionCode = $("<pre data-parqu-code></pre>", {
-        class: "sh_java"
+    var parquQuestionCode = $("<pre/>", {
+        "class": "sh_java",
+        "data-parqu-code": ""
     });
     var parquQuestionOptions = $("<div data-parqu-options></div>");
     var parquQuestionReroll = $("<button parqu-reroll></button>");
@@ -77,11 +78,11 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
 
     $(element).find(idElement + " .panel-default" + " a").click(function(){
         $(element).find(idElement + " .panel-default" + " a").unbind();
-        initParquQuestion("#parquQuestion" + id, id, studentNumber);
+        initParquQuestion("#parquQuestion" + id, id, studentNumber, callback);
     });
 }
 
-function initParquQuestion(element, id, studentNumber) {
+function initParquQuestion(element, id, studentNumber, callback) {
     $(element).find("[data-parqu-question-text]").append("Ladataan tehtävää...");
     $.get("http://parqu.herokuapp.com/questions/" + id, {studentID: studentNumber}).done( function(data) {
         $(element).find("[data-parqu-code]").append(data.code);
@@ -116,7 +117,8 @@ function initParquQuestion(element, id, studentNumber) {
             $(element).find("[data-parqu-options]").empty();
             $(element).find("[data-parqu-code]").empty();
             $(element).find("[data-parqu-question-text]").empty();
-            initParquQuestion(element, id, studentNumber)});
+            initParquQuestion(element, id, studentNumber, callback)});
+        typeof callback === "function" && callback();
     });
 }
 
