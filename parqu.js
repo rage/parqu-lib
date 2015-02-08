@@ -154,7 +154,7 @@ function checkAnswer(id, answerID, studentNumber, element){
             }
         },
         error: function(jqXHR) {
-            console.log('ERROR! DATA NOT SENT');
+            console.error(jqXHR);
         }
     });
 }
