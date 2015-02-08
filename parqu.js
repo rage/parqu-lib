@@ -61,11 +61,8 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName, c
     var parquQuestionCode = $("<pre/>", {
         class: "sh_java parqu-code"
     });
-    var parquQuestionOptions = $("<div/>", {
+    var parquQuestionOptions = $("<form/>", {
         class: "parqu-options"
-    });
-    var parquQuestionReroll = $("<button/>", {
-        class: "parqu-reroll"
     });
 
     $(element).append(panelGroup);
@@ -81,8 +78,7 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName, c
 
     parquQuestionElement.append(parquQuestionText)
                         .append(parquQuestionCode)
-                        .append(parquQuestionOptions)
-                        .append(parquQuestionReroll);
+                        .append(parquQuestionOptions);
 
     collapseLink.click(function(){
         collapseLink.unbind();
@@ -100,7 +96,7 @@ function initParquQuestion(element, id, studentNumber, callback) {
         $.each(data.answers, function(index, answer) {
             var radio = $("<input/>", {
                 type: "radio",
-                name: "answer" + id,
+                name: "answer",
                 value: answer
             });
 
@@ -111,43 +107,54 @@ function initParquQuestion(element, id, studentNumber, callback) {
         var submit = $("<input/>", {
                 type: "submit",
                 value: "Tarkista vastaus",
-                id: "checkAnswer" + id
+                class: "checkAnswer"
         });
-        $(".parqu-options", element).append(submit);
 
-        $("#checkAnswer" + id).click(function(){
-            checkAnswer(data.correctAnswer, id, data.answerID, studentNumber)});
+        var parquQuestionReroll = $("<button/>", {
+            class: "parqu-reroll"
+        });
 
-        $(".parqu-reroll", element).append("Uusi tehtävä");
-        $(".parqu-reroll", element).click(function(){
-            $(".parqu-reroll", element).empty();
-            $(".parqu-reroll", element).unbind();
-            $(".parqu-options", element).empty();
-            $(".parqu-code", element).empty();
-            $(".parqu-question-text", element).empty();
-            initParquQuestion(element, id, studentNumber, callback)});
+        $(".parqu-options", element)
+            .prepend(parquQuestionReroll)
+            .append(submit)
+            .submit(function(e) {
+                checkAnswer(id, data.answerID, studentNumber, element);
+                return false;
+            });
+
+        $(".parqu-reroll", element)
+            .text("Uusi tehtävä")
+            .click(function(){
+                $(".parqu-reroll", element).empty();
+                $(".parqu-reroll", element).unbind();
+                $(".parqu-options", element).empty();
+                $(".parqu-code", element).empty();
+                $(".parqu-question-text", element).empty();
+                initParquQuestion(element, id, studentNumber, callback)
+            });
         typeof callback === "function" && callback();
     });
 }
 
-function checkAnswer(rightAnswer, id, answerID, studentNumber){
-    var chosenElement = $('input[name=answer' + id +']:checked');
-    var chosenValue = chosenElement.val();
-
+function checkAnswer(id, answerID, studentNumber, element){
+    var chosenElement = $('input[name=answer]:checked', element);
     $.ajax({
-          type: "POST",
-          url: "http://parqu.herokuapp.com/questions/",
-          data: JSON.stringify({'studentID':studentNumber, 'answerID': answerID, 'answer':chosenValue, 'questionID':id}),
-          contentType: 'application/json',
-          success: function( data ) {
-            if(data){
+        type: "POST",
+        url: "http://parqu.herokuapp.com/questions/",
+        data: JSON.stringify({'studentID':studentNumber, 'answerID': answerID, 'answer':chosenElement.val(), 'questionID':id}),
+        contentType: 'application/json',
+        success: function(data) {
+            if (data) {
+                $('input[name=answer]',element).attr("disabled", true);
+                $('.checkAnswer', element).attr('disabled', true);
                 chosenElement.parent().addClass("correct");
             } else {
                 chosenElement.parent().addClass("wrong");
+                chosenElement.attr("disabled", true);
             }
-          },
-          error: function(jqXHR) {
+        },
+        error: function(jqXHR) {
             console.log("ERROR! DATA NOT SENT");
-          }
+        }
     });
 }

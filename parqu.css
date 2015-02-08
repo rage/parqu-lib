@@ -14,6 +14,10 @@
 	float:left;
 }
 
-.parqu-question-div > button {
+.parqu-reroll {
 	float:right;
+}
+
+.checkAnswer[disabled] {
+	color: #999999;
 }
