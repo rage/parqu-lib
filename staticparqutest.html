@@ -3138,7 +3138,7 @@ $(document).ready(function() {
 
     initQuizzinator();
 
-    initParqu($(".parqu-exercise"), auth.username, sh_highlightDocument);
+    initParqu('https://parqu.herokuapp.com/questions/', $('.parqu-exercise'), auth.username, sh_highlightDocument);
 
     // wk2
     buildQuestionHTMLFramework("#parqu-exercise1", "3", auth.username, "Muuttujan arvon asettaminen");
