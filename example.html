@@ -24,6 +24,8 @@
     </body>
 
     <script>
-        initParqu($(".parqu-exercise"), "013456789", sh_highlightDocument);
+        var parqu = new Parqu('https://parqutoo.herokuapp.com', "013456789");
+        parqu.addExerciseCallback(sh_highlightDocument);
+        parqu.init($(".parqu-exercise"));
     </script>
 </html>
