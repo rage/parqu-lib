@@ -39,15 +39,15 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName, c
     });
 
     var collapseLink = $('<a/>', {
-        class: 'collapsed',
+        class: 'collapsed panel-title',
         href: idElement + '-2',
         'data-toggle': 'collapse',
-        'data-parent': idElement,
-        text: 'Koodinluku: ' + exerciseName
+        'data-parent': idElement
     });
 
     var exerciseNameElement = $('<h4/>', {
-        class: 'tehtava panel-title',
+        class: 'tehtava',
+        text: 'Koodinluku: ' + exerciseName
     });
 
     var parquQuestionElement = $('<div/>', {
@@ -66,10 +66,10 @@ function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName, c
     });
 
     $(element).append(panelGroup);
-    $(idElement).append(panelDefault);
-    panelDefault.append(panelHeading);
+    panelGroup.append(panelDefault);
+    panelDefault.append(collapseLink);
+    collapseLink.append(panelHeading);
     panelHeading.append(exerciseNameElement);
-    exerciseNameElement.append(collapseLink);
 
     panelDefault.append(panelCollapse);
     panelCollapse.append(panelBody);
