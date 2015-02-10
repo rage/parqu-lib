@@ -1,35 +1,29 @@
 <html>
     <head>
+        <meta charset="UTF-8">
         <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
         <script src="parqu.js"></script>
+        <script src="sh_main.min.js"></script>
+        <script src="sh_java.min.js"></script>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="parqu.css">
+        <link rel="stylesheet" type="text/css" href="sh_style.css">
     </head>
     <body>
-        <div id="parqu-exercise1"></div>
+        <div class="container">
+            <!--<div id="parqu-exercise1"></div>-->
 
-        <div id="question">
-            <h2 data-parqu-question-text></h2>
-            <pre data-parqu-code></pre>
-            <div data-parqu-options></div>
+            <div class="parqu-exercise" data-id="1" data-name="Vaikeampi sijoitus"></div>
+            <div class="parqu-exercise" data-id="2" data-name="Init parqu2"></div>
+            <div class="parqu-exercise" data-id="3" data-name="Init parqu2"></div>
+            <div class="parqu-exercise" data-id="4" data-name="Init parqu2"></div>
         </div>
-        <div id="question2">
-            <h2 data-parqu-question-text></h2>
-            <pre data-parqu-code></pre>
-            <div data-parqu-options></div>
-        </div> 
-        <div id="question3">
-            <h2 data-parqu-question-text></h2>
-            <pre data-parqu-code></pre>
-            <div data-parqu-options></div>
-        </div> 
     </body>
 
-
-            <script>
-            initParquQuestion("#question", "3", "013456789");
-            initParquQuestion("#question2", "2", "013456789");
-            initParquQuestion("#question3", "3", "013456789");
-
-            buildQuestionHTMLFramework("#parqu-exercise1", "3", "01234578", "Simppeli sijoitus");
-        </script>
+    <script>
+        initParqu($(".parqu-exercise"), "013456789", sh_highlightDocument);
+    </script>
 </html>

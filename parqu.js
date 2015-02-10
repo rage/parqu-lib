@@ -1,132 +1,160 @@
-function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
+function initParqu(elements, studentNumber, callback) {
+    if (elements === undefined || elements.length === 0) {
+        return;
+    }
+
+    for (var i = 0; i < elements.length; i++) {
+        var element = $(elements[i]);
+        buildQuestionHTMLFramework(element, element.data('id'), studentNumber, element.data('name'), callback);
+    }
+}
+
+function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName, callback){
     if($(element)[0] == undefined){
         return;
     }
 
-    var idElement = "#parqu-panel" + id;
+    var idElement = '#parqu-panel' + id;
 
-    var panelGroup = $("<div></div>", {
-        class: "panel-group",
-        id: "parqu-panel" + id
+    var panelGroup = $('<div/>', {
+        class: 'panel-group',
+        id: 'parqu-panel' + id
     });
 
-    var panelDefault = $("<div></div>", {
-        class: "panel panel-default"
+    var panelDefault = $('<div/>', {
+        class: 'panel panel-default'
     });
 
-    var panelHeading = $("<div></div>", {
-        class: "panel-heading"
+    var panelHeading = $('<div/>', {
+        class: 'panel-heading'
     });
 
-    var panelBody = $("<div></div>", {
-        class: "panel-body"
+    var panelBody = $('<div/>', {
+        class: 'panel-body'
     });
 
-    var panelCollapse = $("<div></div>", {
-        class: "panel-collapse collapse",
-        id: "parqu-panel" + id + "-2"
+    var panelCollapse = $('<div/>', {
+        class: 'panel-collapse collapse',
+        id: 'parqu-panel' + id + '-2'
     });
 
-    var collapseLink = $("<a></a>", {
-        class: "panel-title",
-        href: idElement + "-2"
-    }).attr("data-toggle", "collapse").attr("data-parent", idElement);
-
-    var exerciseNameElement = $("<h4/>", {
-        class: "tehtava",
-    }).text("Koodinluku: " + exerciseName);
-
-    var parquQuestionElement = $("<div></div>", {
-        id: "parquQuestion" + id,
-        class: "parqu-question-div"
+    var collapseLink = $('<a/>', {
+        class: 'collapsed',
+        href: idElement + '-2',
+        'data-toggle': 'collapse',
+        'data-parent': idElement,
+        text: 'Koodinluku: ' + exerciseName
     });
 
-    var parquQuestionText = $("<h3 data-parqu-question-text></h3>");
-    var parquQuestionCode = $("<pre data-parqu-code></pre>", {
-        class: "sh_java"
+    var exerciseNameElement = $('<h4/>', {
+        class: 'tehtava panel-title',
     });
-    var parquQuestionOptions = $("<div data-parqu-options></div>");
-    var parquQuestionReroll = $("<button parqu-reroll></button>");
+
+    var parquQuestionElement = $('<div/>', {
+        id: 'parquQuestion' + id,
+        class: 'parqu-question-div'
+    });
+
+    var parquQuestionText = $('<h3/>', {
+        class: 'parqu-question-text'
+    });
+    var parquQuestionCode = $('<pre/>', {
+        class: 'sh_java parqu-code'
+    });
+    var parquQuestionOptions = $('<form/>', {
+        class: 'parqu-options'
+    });
 
     $(element).append(panelGroup);
     $(idElement).append(panelDefault);
-    $(idElement + " .panel-default").append(collapseLink);
-    $(idElement + " .panel-title").append(panelHeading);
-    $(idElement + " .panel-heading").append(exerciseNameElement);
+    panelDefault.append(panelHeading);
+    panelHeading.append(exerciseNameElement);
+    exerciseNameElement.append(collapseLink);
 
-    $(idElement + " .panel-default").append(panelCollapse);
-    $(idElement + " .panel-collapse").append(panelBody);
+    panelDefault.append(panelCollapse);
+    panelCollapse.append(panelBody);
 
-    $(idElement + " .panel-body").append(parquQuestionElement);
+    panelBody.append(parquQuestionElement);
 
-    $("#parquQuestion" + id).append(parquQuestionText);        
-    $("#parquQuestion" + id).append(parquQuestionCode);
-    $("#parquQuestion" + id).append(parquQuestionOptions);
-    $("#parquQuestion" + id).append(parquQuestionReroll);
+    parquQuestionElement.append(parquQuestionText)
+                        .append(parquQuestionCode)
+                        .append(parquQuestionOptions);
 
-    $(element).find(idElement + " .panel-default" + " a").click(function(){
-        $(element).find(idElement + " .panel-default" + " a").unbind();
-        initParquQuestion("#parquQuestion" + id, id, studentNumber);
+    collapseLink.click(function(){
+        collapseLink.unbind();
+        initParquQuestion(parquQuestionElement, id, studentNumber, callback);
     });
 }
 
-function initParquQuestion(element, id, studentNumber) {
-    $(element).find("[data-parqu-question-text]").append("Ladataan tehtävää...");
-    $.get("http://parqu.herokuapp.com/questions/" + id, {studentID: studentNumber}).done( function(data) {
-        $(element).find("[data-parqu-code]").append(data.code);
-        $(element).find("[data-parqu-question-text]").empty();
-        $(element).find("[data-parqu-question-text]").append(data.questionText);
+function initParquQuestion(element, id, studentNumber, callback) {
+    $('.parqu-question-text', element).append('Ladataan tehtävää...');
+    $.get('https://parqu.herokuapp.com/questions/' + id, {studentID: studentNumber}).done( function(data) {
+        $('.parqu-code', element).append(data.code);
+        $('.parqu-question-text', element).empty();
+        $('.parqu-question-text', element).append(data.questionText);
 
         $.each(data.answers, function(index, answer) {
-            var radio = $("<input></input>", {
-                type: "radio",
-                name: "answer" + id,
+            var radio = $('<input/>', {
+                type: 'radio',
+                name: 'answer',
                 value: answer
             });
 
-            var el = $("<label></label>").append(radio).append(" " + answer);
+            var el = $('<label/>').append(radio).append(' ' + answer);
 
-            $(element).find("[data-parqu-options]").append(el).append("<br>");
+            $('.parqu-options', element).append(el).append('<br>');
         });
-        var submit = $("<input></input>", {
-                type: "submit",
-                value: "Tarkista vastaus",
-                id: "checkAnswer" + id
+        var submit = $('<input/>', {
+                type: 'submit',
+                value: 'Tarkista vastaus',
+                class: 'checkAnswer'
         });
-        $(element).find("[data-parqu-options]").append(submit);
 
-        $("#checkAnswer" + id).click(function(){
-            checkAnswer(data.correctAnswer, id, data.answerID, studentNumber)});
+        var parquQuestionReroll = $('<button/>', {
+            class: 'parqu-reroll'
+        });
 
-        $(element).find("[parqu-reroll]").append("Uusi tehtävä");
-        $(element).find("[parqu-reroll]").click(function(){
-            $(element).find("[parqu-reroll]").empty();
-            $(element).find("[parqu-reroll]").unbind();
-            $(element).find("[data-parqu-options]").empty();
-            $(element).find("[data-parqu-code]").empty();
-            $(element).find("[data-parqu-question-text]").empty();
-            initParquQuestion(element, id, studentNumber)});
+        $('.parqu-options', element)
+            .prepend(parquQuestionReroll)
+            .append(submit)
+            .submit(function(e) {
+                checkAnswer(id, data.answerID, studentNumber, element);
+                return false;
+            });
+
+        $('.parqu-reroll', element)
+            .text('Uusi tehtävä')
+            .click(function(){
+                $('.parqu-reroll', element).empty();
+                $('.parqu-reroll', element).unbind();
+                $('.parqu-options', element).empty();
+                $('.parqu-code', element).empty();
+                $('.parqu-question-text', element).empty();
+                initParquQuestion(element, id, studentNumber, callback)
+            });
+        typeof callback === 'function' && callback();
     });
 }
 
-function checkAnswer(rightAnswer, id, answerID, studentNumber){
-    var chosenElement = $('input[name=answer' + id +']:checked');
-    var chosenValue = chosenElement.val();
-
+function checkAnswer(id, answerID, studentNumber, element){
+    var chosenElement = $('input[name=answer]:checked', element);
     $.ajax({
-          type: "POST",
-          url: "http://parqu.herokuapp.com/questions/",
-          data: JSON.stringify({'studentID':studentNumber, 'answerID': answerID, 'answer':chosenValue, 'questionID':id}),
-          contentType: 'application/json',
-          success: function( data ) {
-            if(data){
-                chosenElement.parent().addClass("correct");
+        type: 'POST',
+        url: 'https://parqu.herokuapp.com/questions/',
+        data: JSON.stringify({'studentID':studentNumber, 'answerID': answerID, 'answer':chosenElement.val(), 'questionID':id}),
+        contentType: 'application/json',
+        success: function(data) {
+            if (data) {
+                $('input[name=answer]',element).attr('disabled', true);
+                $('.checkAnswer', element).attr('disabled', true);
+                chosenElement.parent().addClass('correct');
             } else {
-                chosenElement.parent().addClass("wrong");
+                chosenElement.parent().addClass('wrong');
+                chosenElement.attr('disabled', true);
             }
-          },
-          error: function(jqXHR) {
-            console.log("ERROR! DATA NOT SENT");
-          }
+        },
+        error: function(jqXHR) {
+            console.error(jqXHR);
+        }
     });
 }
