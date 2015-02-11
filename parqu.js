@@ -53,7 +53,6 @@ function ParquProgressBar() {
 }
 
 ParquProgressBar.prototype.setValue = function(value) {
-    console.log(value);
     this.value = value;
     this.progressBar.css('width', value + '%');
 }
@@ -67,9 +66,6 @@ function Parqu(url, studentNumber) {
 }
 
 Parqu.prototype.shouldShowProgress = function() {
-    console.log(this.studentNumber.hashCode() % 2);
-    console.log(this.studentNumber);
-
     return this.studentNumber.hashCode() % 2;
 }
 
