@@ -1,132 +1,280 @@
-function buildQuestionHTMLFramework (element, id, studentNumber, exerciseName){
-    if($(element)[0] == undefined){
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr, len;
+  if (this.length == 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+
+function ParquExercise(element, id, name) {
+    this.element = element;
+    this.id = id;
+    this.name = name;
+    this.streak = 0;
+    this.correct = false;
+    this.answers = [];
+}
+
+ParquExercise.prototype.addAnswer = function(answer, correct) {
+    if (correct) {
+        this.correct = true;
+        if (this.answers.length === 0) {
+            this.streak++;
+        }
+    } else {
+        this.streak = 0;
+    }
+    this.answers.push(answer);
+}
+
+ParquExercise.prototype.resetAnswers = function() {
+    this.correct = false;
+    this.answers = [];
+}
+
+ParquExercise.prototype.setProgressbar = function(progressbar) {
+    this.progressbar = progressbar;
+}
+
+function ParquProgressBar() {
+    this.value = 0;
+    this.progressBar = $("<div/>",{
+        class: 'progress-bar',
+        'aria-valuemin': 0,
+        'aria-valuemax': 100
+    });
+    this.progress = $("<div/>", {
+        class: 'progress',
+        style: 'width: 100%'
+    }).append(this.progressBar);
+}
+
+ParquProgressBar.prototype.setValue = function(value) {
+    console.log(value);
+    this.value = value;
+    this.progressBar.css('width', value + '%');
+}
+
+function Parqu(url, studentNumber) {
+    this.url = url;
+    this.studentNumber = studentNumber;
+    this.exerciseCallbacks = [];
+    this.answerCallbacks = [];
+    this.answerCallbacks.push(this.markAnswer);
+}
+
+Parqu.prototype.shouldShowProgress = function() {
+    console.log(this.studentNumber.hashCode() % 2);
+    console.log(this.studentNumber);
+
+    return this.studentNumber.hashCode() % 2;
+}
+
+Parqu.prototype.init = function(elements) {
+    if (elements === undefined) {
         return;
     }
 
-    var idElement = "#parqu-panel" + id;
+    for (var i = 0; i < elements.length; i++) {
+        var element = $(elements[i]);
+        var exercise = new ParquExercise(element, element.data('id'), element.data('name'));
+        if(this.shouldShowProgress()){
+            exercise.setProgressbar(new ParquProgressBar());
+        }
+        this.buildQuestionHTMLFramework(exercise);
+    }
 
-    var panelGroup = $("<div></div>", {
-        class: "panel-group",
-        id: "parqu-panel" + id
-    });
+    if(!this.shouldShowProgress()){
+        return;
+    }
 
-    var panelDefault = $("<div></div>", {
-        class: "panel panel-default"
-    });
-
-    var panelHeading = $("<div></div>", {
-        class: "panel-heading"
-    });
-
-    var panelBody = $("<div></div>", {
-        class: "panel-body"
-    });
-
-    var panelCollapse = $("<div></div>", {
-        class: "panel-collapse collapse",
-        id: "parqu-panel" + id + "-2"
-    });
-
-    var collapseLink = $("<a></a>", {
-        class: "panel-title",
-        href: idElement + "-2"
-    }).attr("data-toggle", "collapse").attr("data-parent", idElement);
-
-    var exerciseNameElement = $("<h4/>", {
-        class: "tehtava",
-    }).text("Koodinluku: " + exerciseName);
-
-    var parquQuestionElement = $("<div></div>", {
-        id: "parquQuestion" + id,
-        class: "parqu-question-div"
-    });
-
-    var parquQuestionText = $("<h3 data-parqu-question-text></h3>");
-    var parquQuestionCode = $("<pre data-parqu-code></pre>", {
-        class: "sh_java"
-    });
-    var parquQuestionOptions = $("<div data-parqu-options></div>");
-    var parquQuestionReroll = $("<button parqu-reroll></button>");
-
-    $(element).append(panelGroup);
-    $(idElement).append(panelDefault);
-    $(idElement + " .panel-default").append(collapseLink);
-    $(idElement + " .panel-title").append(panelHeading);
-    $(idElement + " .panel-heading").append(exerciseNameElement);
-
-    $(idElement + " .panel-default").append(panelCollapse);
-    $(idElement + " .panel-collapse").append(panelBody);
-
-    $(idElement + " .panel-body").append(parquQuestionElement);
-
-    $("#parquQuestion" + id).append(parquQuestionText);        
-    $("#parquQuestion" + id).append(parquQuestionCode);
-    $("#parquQuestion" + id).append(parquQuestionOptions);
-    $("#parquQuestion" + id).append(parquQuestionReroll);
-
-    $(element).find(idElement + " .panel-default" + " a").click(function(){
-        $(element).find(idElement + " .panel-default" + " a").unbind();
-        initParquQuestion("#parquQuestion" + id, id, studentNumber);
+    this.addAnswerCallback(function(exercise, answerElement, correct) {
+        if (correct && exercise.answers.length === 1) {
+            if (exercise.streak === 3) {
+                exercise.progressbar.progressBar.addClass('progress-bar-success');
+            }
+            exercise.progressbar.setValue(exercise.streak * 33.4);
+        } else {
+            exercise.progressbar.setValue(0);
+        }
     });
 }
 
-function initParquQuestion(element, id, studentNumber) {
-    $(element).find("[data-parqu-question-text]").append("Ladataan tehtävää...");
-    $.get("http://parqu.herokuapp.com/questions/" + id, {studentID: studentNumber}).done( function(data) {
-        $(element).find("[data-parqu-code]").append(data.code);
-        $(element).find("[data-parqu-question-text]").empty();
-        $(element).find("[data-parqu-question-text]").append(data.questionText);
+Parqu.prototype.buildQuestionHTMLFramework = function(exercise){
+
+    var parquId = 'parqu-' + exercise.id;
+
+    var panelGroup = $('<div/>', {
+        class: 'panel-group'
+    });
+
+    var panelDefault = $('<div/>', {
+        class: 'panel panel-default'
+    });
+
+    var panelHeading = $('<div/>', {
+        class: 'panel-heading'
+    });
+
+    var panelBody = $('<div/>', {
+        class: 'panel-body'
+    });
+
+    var panelCollapse = $('<div/>', {
+        class: 'panel-collapse collapse',
+        id: parquId
+    });
+
+    var collapseLink = $('<a/>', {
+        class: 'collapsed panel-title',
+        href: '#' + parquId,
+        'data-toggle': 'collapse',
+        'data-parent': parquId
+    });
+
+    var exerciseNameElement = $('<h4/>', {
+        class: 'tehtava',
+        text: 'Koodinluku: ' + exercise.name
+    });
+
+    var parquQuestionElement = $('<div/>', {
+        class: 'parqu-question-div'
+    });
+
+    var parquQuestionText = $('<h3/>', {
+        class: 'parqu-question-text'
+    });
+    var parquQuestionCode = $('<pre/>', {
+        class: 'sh_java parqu-code'
+    });
+    var parquQuestionOptions = $('<div/>', {
+        class: 'parqu-options'
+    });
+
+    var parquQuestionReroll = $('<button/>', {
+        class: 'parqu-reroll',
+        text: 'Uusi tehtävä'
+    }).click(function(){
+        self.initQuestion(exercise)
+    });
+
+
+    $(exercise.element).append(panelGroup);
+    panelGroup.append(panelDefault);
+    panelDefault.append(collapseLink);
+    collapseLink.append(panelHeading);
+    panelHeading.append(exerciseNameElement);
+
+    panelDefault.append(panelCollapse);
+    panelCollapse.append(panelBody);
+
+    panelBody.append(parquQuestionElement);
+
+    parquQuestionOptions.append(parquQuestionReroll);
+
+    parquQuestionElement.append(parquQuestionText)
+                        .append(parquQuestionCode)
+                        .append(parquQuestionOptions);
+    
+    if(this.shouldShowProgress()){
+        parquQuestionElement.append(exercise.progressbar.progress);
+    }
+
+    var self = this;
+    collapseLink.click(function(){
+        collapseLink.unbind();
+        self.initQuestion(exercise);
+    });
+}
+
+Parqu.prototype.initQuestion = function(exercise) {
+    
+    exercise.resetAnswers();
+
+    $('.parqu-options form', exercise.element).empty();
+    var answerForm = $('<form/>');
+    $('.parqu-options', exercise.element).append(answerForm);
+
+    var self = this;
+    $('.parqu-question-text', exercise.element).text('Ladataan tehtävää...');
+    $.get(this.url + '/questions/' + exercise.id, {studentID: this.studentNumber}).done( function(data) {
+        $('.parqu-code', exercise.element).text(data.code);
+        $('.parqu-question-text', exercise.element).text(data.questionText);
 
         $.each(data.answers, function(index, answer) {
-            var radio = $("<input></input>", {
-                type: "radio",
-                name: "answer" + id,
+            var radio = $('<input/>', {
+                type: 'radio',
+                name: 'answer',
                 value: answer
             });
 
-            var el = $("<label></label>").append(radio).append(" " + answer);
+            var el = $('<label/>').append(radio).append(' ' + answer);
 
-            $(element).find("[data-parqu-options]").append(el).append("<br>");
+            answerForm.append(el).append('<br>');
         });
-        var submit = $("<input></input>", {
-                type: "submit",
-                value: "Tarkista vastaus",
-                id: "checkAnswer" + id
+        var submit = $('<input/>', {
+                type: 'submit',
+                value: 'Tarkista vastaus',
+                class: 'checkAnswer'
         });
-        $(element).find("[data-parqu-options]").append(submit);
 
-        $("#checkAnswer" + id).click(function(){
-            checkAnswer(data.correctAnswer, id, data.answerID, studentNumber)});
+        answerForm.append(submit)
+            .submit(function(e) {
+                self.checkAnswer(exercise, data.answerID);
+                return false;
+            });
 
-        $(element).find("[parqu-reroll]").append("Uusi tehtävä");
-        $(element).find("[parqu-reroll]").click(function(){
-            $(element).find("[parqu-reroll]").empty();
-            $(element).find("[parqu-reroll]").unbind();
-            $(element).find("[data-parqu-options]").empty();
-            $(element).find("[data-parqu-code]").empty();
-            $(element).find("[data-parqu-question-text]").empty();
-            initParquQuestion(element, id, studentNumber)});
+
+        for (var i = 0; i < self.exerciseCallbacks.length; i++) {
+            self.exerciseCallbacks[i]();
+        }
     });
 }
 
-function checkAnswer(rightAnswer, id, answerID, studentNumber){
-    var chosenElement = $('input[name=answer' + id +']:checked');
-    var chosenValue = chosenElement.val();
+Parqu.prototype.checkAnswer = function(exercise, answerId){
 
+    var chosenElement = $('input[name=answer]:checked', exercise.element);
+    var answer = chosenElement.val();
+
+    var self = this;
     $.ajax({
-          type: "POST",
-          url: "http://parqu.herokuapp.com/questions/",
-          data: JSON.stringify({'studentID':studentNumber, 'answerID': answerID, 'answer':chosenValue, 'questionID':id}),
-          contentType: 'application/json',
-          success: function( data ) {
-            if(data){
-                chosenElement.parent().addClass("correct");
-            } else {
-                chosenElement.parent().addClass("wrong");
+        type: 'POST',
+        url: this.url + '/questions/',
+        data: JSON.stringify({'studentID':this.studentNumber, 'answerID': answerId, 'answer': answer, 'questionID':exercise.id}),
+        contentType: 'application/json',
+        success: function(data) {
+            exercise.addAnswer(answer, !!data);
+            for (var i = 0; i < self.answerCallbacks.length; i++) {
+                self.answerCallbacks[i](exercise, chosenElement, !!data);
             }
-          },
-          error: function(jqXHR) {
-            console.log("ERROR! DATA NOT SENT");
-          }
+        },
+        error: function(jqXHR) {
+            console.error(jqXHR);
+        }
     });
+}
+
+Parqu.prototype.markAnswer = function(exercise, answerElement, correct) {
+    if (correct) {
+        $('input[name=answer]', exercise.element).attr('disabled', true);
+        $('.checkAnswer', exercise.element).attr('disabled', true);
+        answerElement.parent().addClass('correct');
+    } else {
+        answerElement.parent().addClass('wrong');
+        answerElement.attr('disabled', true);
+    }
+}
+
+Parqu.prototype.addExerciseCallback = function(callback) {
+
+    this.exerciseCallbacks.push(callback);
+}
+
+
+Parqu.prototype.addAnswerCallback = function(callback) {
+
+    this.answerCallbacks.push(callback);
 }
