@@ -17,3 +17,7 @@
 .checkAnswer[disabled] {
 	color: #999999;
 }
+
+.progress {
+	margin-top:1em;
+}

@@ -611,6 +611,9 @@
           <h1> Viikko 6 </h1>
           <div class="parqu-exercise" data-id="23" data-name="Klooniaikakone"></div>
           <div class="parqu-exercise" data-id="24" data-name="Muuttujien näkyvyys"></div>
+          <div class="parqu-exercise" data-id="25" data-name="Taulukot ja for"></div>
+          <div class="parqu-exercise" data-id="26" data-name="Taulukko-operaatio"></div>
+
 
 
         <div class="tehtavat" data-hash="678ImcerZcwIn_KoCaFEGui5cO_UjuHmXjoeL8SQX2uA-U5gbrRsWtsxCSLnlzE5bth-drCVkbARUrhXehM1eg==">
@@ -3092,7 +3095,9 @@ $(document).ready(function() {
 
     initQuizzinator();
 
-    initParqu('https://parqu.herokuapp.com/questions/', $('.parqu-exercise'), auth.username, sh_highlightDocument);
+    var parqu = new Parqu('https://parqutoo.herokuapp.com', auth.username);
+    parqu.addExerciseCallback(sh_highlightDocument);
+    parqu.init($(".parqu-exercise"));
 
     initSelfExpl(function() {
       console.log("self expl initiated");

@@ -26,17 +26,17 @@
     <script>
         var parqu = new Parqu('https://parqutoo.herokuapp.com', "013456789");
         parqu.addExerciseCallback(sh_highlightDocument);
-        parqu.addAnswerCallback(function(exercise, answerElement, correct) {
-            console.log(exercise.answers);
-            if (correct && exercise.answers.length === 1) {
-                if (exercise.streak === 3) {
-                    exercise.progressbar.progressBar.addClass('progress-bar-success');
-                }
-                exercise.progressbar.setValue(exercise.streak * 33.4);
-            } else {
-                exercise.progressbar.setValue(0);
-            }
-        });
+        // parqu.addAnswerCallback(function(exercise, answerElement, correct) {
+        //     console.log(exercise.answers);
+        //     if (correct && exercise.answers.length === 1) {
+        //         if (exercise.streak === 3) {
+        //             exercise.progressbar.progressBar.addClass('progress-bar-success');
+        //         }
+        //         exercise.progressbar.setValue(exercise.streak * 33.4);
+        //     } else {
+        //         exercise.progressbar.setValue(0);
+        //     }
+        // });
         parqu.init($(".parqu-exercise"));
     </script>
 </html>

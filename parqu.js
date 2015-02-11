@@ -1,3 +1,14 @@
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr, len;
+  if (this.length == 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+
 function ParquExercise(element, id, name) {
     this.element = element;
     this.id = id;
@@ -55,8 +66,14 @@ function Parqu(url, studentNumber) {
     this.answerCallbacks.push(this.markAnswer);
 }
 
-Parqu.prototype.init = function(elements) {
+Parqu.prototype.shouldShowProgress = function() {
+    console.log(this.studentNumber.hashCode() % 2);
+    console.log(this.studentNumber);
 
+    return this.studentNumber.hashCode() % 2;
+}
+
+Parqu.prototype.init = function(elements) {
     if (elements === undefined) {
         return;
     }
@@ -64,9 +81,26 @@ Parqu.prototype.init = function(elements) {
     for (var i = 0; i < elements.length; i++) {
         var element = $(elements[i]);
         var exercise = new ParquExercise(element, element.data('id'), element.data('name'));
-        exercise.setProgressbar(new ParquProgressBar());
+        if(this.shouldShowProgress()){
+            exercise.setProgressbar(new ParquProgressBar());
+        }
         this.buildQuestionHTMLFramework(exercise);
     }
+
+    if(!this.shouldShowProgress()){
+        return;
+    }
+
+    this.addAnswerCallback(function(exercise, answerElement, correct) {
+        if (correct && exercise.answers.length === 1) {
+            if (exercise.streak === 3) {
+                exercise.progressbar.progressBar.addClass('progress-bar-success');
+            }
+            exercise.progressbar.setValue(exercise.streak * 33.4);
+        } else {
+            exercise.progressbar.setValue(0);
+        }
+    });
 }
 
 Parqu.prototype.buildQuestionHTMLFramework = function(exercise){
@@ -143,8 +177,11 @@ Parqu.prototype.buildQuestionHTMLFramework = function(exercise){
 
     parquQuestionElement.append(parquQuestionText)
                         .append(parquQuestionCode)
-                        .append(parquQuestionOptions)
-                        .append(exercise.progressbar.progress);
+                        .append(parquQuestionOptions);
+    
+    if(this.shouldShowProgress()){
+        parquQuestionElement.append(exercise.progressbar.progress);
+    }
 
     var self = this;
     collapseLink.click(function(){
