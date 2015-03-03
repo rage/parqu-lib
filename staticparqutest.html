@@ -3096,7 +3096,10 @@ $(document).ready(function() {
     initQuizzinator();
 
     var parqu = new Parqu('https://parqutoo.herokuapp.com', auth.username);
+
     parqu.addExerciseCallback(sh_highlightDocument);
+
+
     parqu.init($(".parqu-exercise"));
 
     initSelfExpl(function() {

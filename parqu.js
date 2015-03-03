@@ -9,10 +9,11 @@ String.prototype.hashCode = function() {
   return hash;
 };
 
-function ParquExercise(element, id, name) {
+function ParquExercise(element, id, name, visualizer) {
     this.element = element;
     this.id = id;
     this.name = name;
+    this.visualizer = new visualizer(this);
     this.streak = 0;
     this.correct = false;
     this.answers = [];
@@ -35,12 +36,19 @@ ParquExercise.prototype.resetAnswers = function() {
     this.answers = [];
 }
 
-ParquExercise.prototype.setProgressbar = function(progressbar) {
-    this.progressbar = progressbar;
+ParquExercise.prototype.getVisualizer = function() {
+    return this.visualizer;
 }
 
-function ParquProgressBar() {
+function ProgressBar(exercise) {
+    this.exercise = exercise;
     this.value = 0;
+    this.answered = false;
+}
+
+ProgressBar.prototype.setElement = function(element) {
+    this.element = element;
+
     this.progressBar = $("<div/>",{
         class: 'progress-bar',
         'aria-valuemin': 0,
@@ -50,12 +58,77 @@ function ParquProgressBar() {
         class: 'progress',
         style: 'width: 100%'
     }).append(this.progressBar);
+
+    this.element.append(this.progress);
 }
 
-ParquProgressBar.prototype.setValue = function(value) {
-    console.log(value);
-    this.value = value;
-    this.progressBar.css('width', value + '%');
+ProgressBar.prototype.success = function() {
+    if (this.answered) {
+        return;
+    }
+    this.value = Math.min(100, this.value + 33.4);
+    if (this.value == 100) {
+        this.progressBar.addClass('progress-bar-success');
+    }
+    this._update();
+}
+
+ProgressBar.prototype.update = function() {
+    if (!this.answered) {
+        this.value = 0;
+        this._update();
+    }
+    this.answered = false;
+}
+
+ProgressBar.prototype.fail = function() {
+    this.value = 0;
+    this._update();
+}
+
+ProgressBar.prototype._update = function() {
+    this.answered = true;
+    this.progressBar.css('width', this.value + '%');
+}
+
+function TextVisualizer(exercise) {
+    this.exercise = exercise;
+}
+
+TextVisualizer.prototype.setElement = function(element) {
+    this.element = element;
+}
+
+TextVisualizer.prototype.update = function() {
+    this.element.html('');
+}
+
+TextVisualizer.prototype.success = function() {
+    this.element.html($('<p/>', {html: '&#10003;', style: 'font-size:20px;'}));
+}
+
+TextVisualizer.prototype.fail = function() {
+    this.element.html($('<p/>', {html: '&#10008;', style: 'font-size:20px;'}));
+}
+function CatPictureVisualizer(exercise) {
+
+}
+
+CatPictureVisualizer.prototype.setElement = function(element) {
+    this.element = element;
+}
+
+CatPictureVisualizer.prototype.update = function() {
+    this.element.html('');
+}
+
+CatPictureVisualizer.prototype.success = function() {
+    var id = Math.round(Math.random() * 436 + 1)
+    this.element.html($('<img/>', {src: "http://www.cs.helsinki.fi/group/java/lolcatz/" + id + ".png", style: "height: 200px;"}));
+}
+
+CatPictureVisualizer.prototype.fail = function() {
+    this.element.html($('<img/>', {src: "http://www.cs.helsinki.fi/group/java/lolcatz/sad.png", style: "height: 200px;"}));
 }
 
 function Parqu(url, studentNumber) {
@@ -66,41 +139,27 @@ function Parqu(url, studentNumber) {
     this.answerCallbacks.push(this.markAnswer);
 }
 
-Parqu.prototype.shouldShowProgress = function() {
-    console.log(this.studentNumber.hashCode() % 2);
-    console.log(this.studentNumber);
-
-    return this.studentNumber.hashCode() % 2;
-}
-
 Parqu.prototype.init = function(elements) {
     if (elements === undefined) {
         return;
     }
 
+    var group = this.getUserGroup();
+    if (group) {
+      this.setVisualizer(TextVisualizer);
+    } else {
+      this.setVisualizer(CatPictureVisualizer);
+    }
+
     for (var i = 0; i < elements.length; i++) {
         var element = $(elements[i]);
-        var exercise = new ParquExercise(element, element.data('id'), element.data('name'));
-        if(this.shouldShowProgress()){
-            exercise.setProgressbar(new ParquProgressBar());
-        }
+        var exercise = new ParquExercise(element, element.data('id'), element.data('name'), this.visualizer);
         this.buildQuestionHTMLFramework(exercise);
     }
+}
 
-    if(!this.shouldShowProgress()){
-        return;
-    }
-
-    this.addAnswerCallback(function(exercise, answerElement, correct) {
-        if (correct && exercise.answers.length === 1) {
-            if (exercise.streak === 3) {
-                exercise.progressbar.progressBar.addClass('progress-bar-success');
-            }
-            exercise.progressbar.setValue(exercise.streak * 33.4);
-        } else {
-            exercise.progressbar.setValue(0);
-        }
-    });
+Parqu.prototype.getUserGroup = function() {
+    return Math.abs(this.studentNumber.hashCode() % 20) < 10;
 }
 
 Parqu.prototype.buildQuestionHTMLFramework = function(exercise){
@@ -161,6 +220,9 @@ Parqu.prototype.buildQuestionHTMLFramework = function(exercise){
         self.initQuestion(exercise)
     });
 
+    var visualizationElement = $('<div/>', {
+        class: 'visualization'
+    })
 
     $(exercise.element).append(panelGroup);
     panelGroup.append(panelDefault);
@@ -172,6 +234,7 @@ Parqu.prototype.buildQuestionHTMLFramework = function(exercise){
     panelCollapse.append(panelBody);
 
     panelBody.append(parquQuestionElement);
+    panelBody.append(visualizationElement);
 
     parquQuestionOptions.append(parquQuestionReroll);
 
@@ -179,9 +242,7 @@ Parqu.prototype.buildQuestionHTMLFramework = function(exercise){
                         .append(parquQuestionCode)
                         .append(parquQuestionOptions);
     
-    if(this.shouldShowProgress()){
-        parquQuestionElement.append(exercise.progressbar.progress);
-    }
+    exercise.getVisualizer().setElement(visualizationElement);
 
     var self = this;
     collapseLink.click(function(){
@@ -201,6 +262,7 @@ Parqu.prototype.initQuestion = function(exercise) {
     var self = this;
     $('.parqu-question-text', exercise.element).text('Ladataan tehtävää...');
     $.get(this.url + '/questions/' + exercise.id, {studentID: this.studentNumber}).done( function(data) {
+        
         $('.parqu-code', exercise.element).text(data.code);
         $('.parqu-question-text', exercise.element).text(data.questionText);
 
@@ -226,8 +288,7 @@ Parqu.prototype.initQuestion = function(exercise) {
                 self.checkAnswer(exercise, data.answerID);
                 return false;
             });
-
-
+        exercise.getVisualizer().update();
         for (var i = 0; i < self.exerciseCallbacks.length; i++) {
             self.exerciseCallbacks[i]();
         }
@@ -246,9 +307,15 @@ Parqu.prototype.checkAnswer = function(exercise, answerId){
         data: JSON.stringify({'studentID':this.studentNumber, 'answerID': answerId, 'answer': answer, 'questionID':exercise.id}),
         contentType: 'application/json',
         success: function(data) {
-            exercise.addAnswer(answer, !!data);
+            var correctAnswer = !!data;
+            exercise.addAnswer(answer, correctAnswer);
+            if (correctAnswer) {
+                exercise.getVisualizer().success(exercise);
+            } else {
+                exercise.getVisualizer().fail(exercise);
+            }
             for (var i = 0; i < self.answerCallbacks.length; i++) {
-                self.answerCallbacks[i](exercise, chosenElement, !!data);
+                self.answerCallbacks[i](exercise, chosenElement, correctAnswer);
             }
         },
         error: function(jqXHR) {
@@ -273,8 +340,11 @@ Parqu.prototype.addExerciseCallback = function(callback) {
     this.exerciseCallbacks.push(callback);
 }
 
-
 Parqu.prototype.addAnswerCallback = function(callback) {
 
     this.answerCallbacks.push(callback);
+}
+
+Parqu.prototype.setVisualizer = function(visualizer) {
+    this.visualizer = visualizer;
 }
