@@ -123,12 +123,12 @@ CatPictureVisualizer.prototype.update = function() {
 }
 
 CatPictureVisualizer.prototype.success = function() {
-    var id = Math.round(Math.random() * 418 + 1)
-    this.element.html($('<img/>', {src: "http://www.cs.helsinki.fi/group/java/lolcatz/" + id + ".png", class: "cat"}));
+    var id = Math.round(Math.random() * 1153 + 1)
+    this.element.html($('<img/>', {src: "http://www.cs.helsinki.fi/group/java/lolcatz-big/" + id + ".jpg", class: "cat"}));
 }
 
 CatPictureVisualizer.prototype.fail = function() {
-    this.element.html($('<img/>', {src: "http://www.cs.helsinki.fi/group/java/lolcatz/sad.png", class: "cat"}));
+    this.element.html($('<img/>', {src: "http://www.cs.helsinki.fi/group/java/lolcatz-big/sad.jpg", class: "cat"}));
 }
 
 function Parqu(url, studentNumber) {
