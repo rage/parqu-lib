@@ -224,6 +224,10 @@ Parqu.prototype.buildQuestionHTMLFramework = function(exercise){
         class: 'visualization'
     })
 
+    var helpElement = $('<div/>', {
+        class: 'help'
+    })
+
     $(exercise.element).append(panelGroup);
     panelGroup.append(panelDefault);
     panelDefault.append(collapseLink);
@@ -235,6 +239,7 @@ Parqu.prototype.buildQuestionHTMLFramework = function(exercise){
 
     panelBody.append(parquQuestionElement);
     panelBody.append(visualizationElement);
+    panelBody.append(helpElement);
 
     parquQuestionOptions.append(parquQuestionReroll);
 
@@ -265,6 +270,11 @@ Parqu.prototype.initQuestion = function(exercise) {
         
         $('.parqu-code', exercise.element).text(data.code);
         $('.parqu-question-text', exercise.element).text(data.questionText);
+        if(data.note){
+            $('.help', exercise.element).html(data.note);
+        } else {
+            $('.help', exercise.element).addClass("hidden");            
+        }
 
         $.each(data.answers, function(index, answer) {
             var radio = $('<input/>', {
