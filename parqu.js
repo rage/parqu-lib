@@ -144,12 +144,14 @@ Parqu.prototype.init = function(elements) {
         return;
     }
 
-    var group = this.getUserGroup();
+    this.setVisualizer(ProgressBar);
+
+/*    var group = this.getUserGroup();
     if (group) {
       this.setVisualizer(TextVisualizer);
     } else {
       this.setVisualizer(CatPictureVisualizer);
-    }
+    } */
 
     for (var i = 0; i < elements.length; i++) {
         var element = $(elements[i]);
